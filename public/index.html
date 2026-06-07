@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LA County Foster Youth Welfare Tracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #07192f 0%, #0a2340 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #07192f;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .igm-status {
+            background: #33e0c4;
+            color: #07192f;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .system-time {
+            color: #33e0c4;
+            font-weight: 500;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            background: rgba(51, 224, 196, 0.1);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #33e0c4;
+            color: #07192f;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: rgba(51, 224, 196, 0.2);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(51, 224, 196, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h3 {
+            color: #33e0c4;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffca58;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(51, 224, 196, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #33e0c4;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(51, 224, 196, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #33e0c4;
+            box-shadow: 0 0 0 3px rgba(51, 224, 196, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: #33e0c4;
+            color: #07192f;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn:hover {
+            background: #29b8a3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(51, 224, 196, 0.3);
+        }
+
+        .btn-secondary {
+            background: #ffca58;
+            color: #07192f;
+        }
+
+        .btn-secondary:hover {
+            background: #e6b34f;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(51, 224, 196, 0.3);
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #33e0c4;
+            box-shadow: 0 0 0 3px rgba(51, 224, 196, 0.2);
+        }
+
+        .case-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 224, 196, 0.2);
+        }
+
+        .case-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(51, 224, 196, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .case-item:hover {
+            background: rgba(51, 224, 196, 0.1);
+        }
+
+        .case-item:last-child {
+            border-bottom: none;
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .case-id {
+            color: #33e0c4;
+            font-weight: 600;
+        }
+
+        .case-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #33e0c4;
+            color: #07192f;
+        }
+
+        .status-pending {
+            background: #ffca58;
+            color: #07192f;
+        }
+
+        .status-closed {
+            background: #666;
+            color: #fff;
+        }
+
+        .contact-log {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(51, 224, 196, 0.2);
+        }
+
+        .log-entry {
+            padding: 1rem;
+            border-left: 3px solid #33e0c4;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .log-date {
+            color: #33e0c4;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            background: #07192f;
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid rgba(51, 224, 196, 0.2);
+            margin-top: 3rem;
+            color: #ccc;
+        }
+
+        .footer a {
+            color: #33e0c4;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .nav-tab {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="status-bar">
+            <div class="igm-status">IGM System Online</div>
+            <div class="system-time" id="systemTime">Loading...</div>
+        </div>
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="showTab('intake')">Intake Form</button>
+            <button class="nav-tab" onclick="showTab('contact')">Contact Log</button>
+            <button class="nav-tab" onclick="showTab('search')">Search Cases</button>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Active Cases</h3>
+                    <div class="stat-number">247</div>
+                    <div class="stat-label">Currently monitored youth</div>
+                </div>
+                <div class="card">
+                    <h3>Pending Reviews</h3>
+                    <div class="stat-number">18</div>
+                    <div class="stat-label">Requiring immediate attention</div>
+                </div>
+                <div class="card">
+                    <h3>Successful Placements</h3>
+                    <div class="stat-number">89%</div>
+                    <div class="stat-label">This quarter success rate</div>
+                </div>
+                <div class="card">
+                    <h3>Total Youth Served</h3>
+                    <div class="stat-number">1,342</div>
+                    <div class="stat-label">Since system launch</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Recent Case Activity</h3>
+                <div class="case-list">
+                    <div class="case-item">
+                        <div class="case-header">
+                            <span class="case-id">Case #FC2024-0891</span>
+                            <span class="case-status status-active">Active</span>
+                        </div>
+                        <p><strong>Youth:</strong> Sarah M. (Age 16)</p>
+                        <p><strong>Last Update:</strong> Placement review scheduled for next week</p>
+                    </div>
+                    <div class="case-item">
+                        <div class="case-header">
+                            <span class="case-id">Case #FC2024-0892</span>
+                            <span class="case-status status-pending">Pending</span>
+                        </div>
+                        <p><strong>Youth:</strong> Michael R. (Age 14)</p>
+                        <p><strong>Last Update:</strong> Awaiting court hearing confirmation</p>
+                    </div>
+                    <div class="case-item">
+                        <div class="case-header">
+                            <span class="case-id">Case #FC2024-0890</span>
+                            <span class="case-status status-closed">Closed</span>
+                        </div>
+                        <p><strong>Youth:</strong> Jessica T. (Age 18)</p>
+                        <p><strong>Last Update:</strong> Successfully transitioned to independent living</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intake Form Tab -->
+        <div id="intake" class="tab-content">
+            <div class="form-container">
+                <h2 style="color: #33e0c4; margin-bottom: 2rem;">Youth Intake Form</h2>
+                <form>
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group">
+                                <label for="youthName">Youth Full Name</label>
+                                <input type="text" id="youthName" placeholder="Enter full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dateOfBirth">Date of Birth</label>
+                                <input type="date" id="dateOfBirth" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" required>
+                                    <option value="">Select gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="non-binary">Non-binary</option>
+                                    <option value="prefer-not-to-say">Prefer not to say</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ethnicity">Ethnicity</label>
+                                <select id="ethnicity" required>
+                                    <option value="">Select ethnicity</option>
+                                    <option value="hispanic">Hispanic/Latino</option>
+                                    <option value="white">White</option>
+                                    <option value="black">Black/African American</option>
+                                    <option value="asian">Asian</option>
+                                    <option value="native">Native American</option>
+                                    <option value="pacific">Pacific Islander</option>
+                                    <option value="mixed">Mixed Race</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label for="caseWorker">Assigned Case Worker</label>
+                                <input type="text" id="caseWorker" placeholder="Case worker name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="intakeDate">Intake Date</label>
+                                <input type="date" id="intakeDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="placementType">Current Placement Type</label>
+                                <select id="placementType" required>
+                                    <option value="">Select placement type</option>
+                                    <option value="foster-home">Foster Home</option>
+                                    <option value="group-home">Group Home</option>
+                                    <option value="kinship">Kinship Care</option>
+                                    <option value="residential">Residential Treatment</option>
+                                    <option value="independent">Independent Living</option>
+                                    <option value="emergency">Emergency Shelter</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="emergencyContact">Emergency Contact</label>
+                                <input type="text" id="emergencyContact" placeholder="Name and phone number" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="medicalInfo">Medical Information</label>
+                        <textarea id="medicalInfo" placeholder="Include allergies, medications, special needs, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="caseNotes">Initial Case Notes</label>
+                        <textarea id="caseNotes" placeholder="Enter initial assessment and case background"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn">Submit Intake</button>
+                        <button type="button" class="btn btn-secondary">Save Draft</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact Log Tab -->
+        <div id="contact" class="tab-content">
+            <div class="form-container">
+                <h2 style="color: #33e0c4; margin-bottom: 2rem;">Contact Log Entry</h2>
+                <form style="margin-bottom: 2rem;">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group">
+                                <label for="contactCase">Case ID</label>
+                                <input type="text" id="contactCase" placeholder="FC2024-XXXX" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactDate">Contact Date</label>
+                                <input type="date" id="contactDate" required>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label for="contactType">Contact Type</label>
+                                <select id="contactType" required>
+                                    <option value="">Select contact type</option>
+                                    <option value="home-visit">Home Visit</option>
+                                    <option value="phone">Phone Call</option>
+                                    <option value="court">Court Hearing</option>
+                                    <option value="school">School Meeting</option>
+                                    <option value="medical">Medical Appointment</option>
+                                    <option value="therapy">Therapy Session</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPerson">Contact Person
